@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"go-login/repository"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -24,18 +25,22 @@ func NewAuthService(userRepo *repository.UserRepository, jwtSecret string) *Auth
 func (s *AuthService) Login(email, password string) (string, error) {
 	user, err := s.userRepo.FindByEmail(email)
 	if err != nil {
+		log.Printf("Login failed: user not found - %s", email)
 		return "", errors.New("invalid credentials")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		log.Printf("Login failed: invalid password - %s", email)
 		return "", errors.New("invalid credentials")
 	}
 
 	token, err := s.generateJWT(user.ID, email)
 	if err != nil {
+		log.Printf("JWT generation failed for user: %s", email)
 		return "", errors.New("failed to generate token")
 	}
 
+	log.Printf("Login successful: %s", email)
 	return token, nil
 }
 
