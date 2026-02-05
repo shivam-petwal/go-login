@@ -17,7 +17,7 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
-		jwtSecret = "your-secret-key-change-in-production"
+		jwtSecret = "secret-key-change"
 	}
 
 	userRepo := repository.NewUserRepository(config.DBcon)

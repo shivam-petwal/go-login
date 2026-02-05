@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"go-login/models"
 	"go-login/repository"
 	"log"
 	"time"
@@ -53,4 +54,31 @@ func (s *AuthService) generateJWT(userID uint, email string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(s.jwtSecret))
+}
+
+func (s *AuthService) Register(email, password string) error {
+	_, err := s.userRepo.FindByEmail(email)
+	if err == nil {
+		log.Printf("Registration failed: user already exists - %s", email)
+		return errors.New("user already exists")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Printf("Password hashing failed: %v", err)
+		return errors.New("failed to create user")
+	}
+
+	user := &models.User{
+		Email:    email,
+		Password: string(hashedPassword),
+	}
+
+	if err := s.userRepo.Create(user); err != nil {
+		log.Printf("Database error creating user: %v", err)
+		return errors.New("failed to create user")
+	}
+
+	log.Printf("User registered successfully: %s", email)
+	return nil
 }

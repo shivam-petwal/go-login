@@ -22,3 +22,7 @@ func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func (r *UserRepository) Create(user *models.User) error {
+	return r.db.Create(user).Error
+}
