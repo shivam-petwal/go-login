@@ -42,7 +42,7 @@ func (c *AuthController) Register(ctx *gin.Context) {
 		return
 	}
 
-	err := c.authService.Register(req.Email, req.Password)
+	err := c.authService.Register(req.Username, req.Email, req.Password)
 	if err != nil {
 		if err.Error() == "user already exists" {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
@@ -53,7 +53,8 @@ func (c *AuthController) Register(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, dto.RegisterResponse{
-		Message: "User registered successfully",
-		Email:   req.Email,
+		Message:  "User registered successfully",
+		Username: req.Username,
+		Email:    req.Email,
 	})
 }
