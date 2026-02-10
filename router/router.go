@@ -16,7 +16,7 @@ func SetupRouter(
 ) *gin.Engine {
 	r := gin.Default()
 
-	
+
 	r.POST("/register", authCtrl.Register)
 	r.POST("/login", authCtrl.Login)
 
@@ -24,14 +24,14 @@ func SetupRouter(
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware(jwtSecret))
 	{
-		// Currency CRUD
+		// Currency
 		protected.POST("/currencies", currencyCtrl.CreateCurrency)
 		protected.GET("/currencies", currencyCtrl.GetAllCurrencies)
 		protected.GET("/currencies/:id", currencyCtrl.GetCurrency)
 		protected.PUT("/currencies/:id", currencyCtrl.UpdateCurrency)
 		protected.DELETE("/currencies/:id", currencyCtrl.DeleteCurrency)
 
-		// Exchange Rate CRUD
+		// Exchange Rate 
 		protected.POST("/exchange-rates", exchangeRateCtrl.CreateExchangeRate)
 		protected.GET("/exchange-rates", exchangeRateCtrl.GetAllExchangeRates)
 		protected.GET("/exchange-rates/:id", exchangeRateCtrl.GetExchangeRate)

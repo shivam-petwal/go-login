@@ -3,7 +3,7 @@ package main
 import (
 	"go-login/config"
 	"go-login/controller"
-	"go-login/models"
+	//"go-login/models"
 	"go-login/repository"
 	"go-login/router"
 	"go-login/service"
@@ -13,7 +13,7 @@ import (
 
 func main() {
 	config.ConnectDB()
-	config.DBcon.AutoMigrate(&models.User{}, &models.Currency{}, &models.ExchangeRate{})
+	//config.DBcon.AutoMigrate(&models.User{}, &models.Currency{}, &models.ExchangeRate{})
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
@@ -30,6 +30,9 @@ func main() {
 	currencyService := service.NewCurrencyService(currencyRepo)
 	exchangeRateService := service.NewExchangeRateService(exchangeRateRepo, currencyRepo)
 	conversionService := service.NewConversionService(exchangeRateRepo, currencyRepo)
+
+	// Sync exchange rates on startup
+	service.NewRateSyncService(exchangeRateRepo).SyncAll()
 
 	// Controllers
 	authCtrl := controller.NewAuthController(authService)

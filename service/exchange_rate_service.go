@@ -35,7 +35,7 @@ func (s *exchangeRateService) CreateExchangeRate(fromCurrencyID, toCurrencyID ui
 		return nil, errors.New("exchange rate must be greater than 0")
 	}
 
-	// Verify both currencies exist and are active
+	// verification that both currencies exist and are active
 	fromCurrency, err := s.currencyRepo.GetByID(fromCurrencyID)
 	if err != nil {
 		return nil, errors.New("from currency not found")

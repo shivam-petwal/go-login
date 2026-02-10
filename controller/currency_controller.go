@@ -18,7 +18,6 @@ func NewCurrencyController(service service.CurrencyService) *CurrencyController 
 	return &CurrencyController{service: service}
 }
 
-// toCurrencyResponse maps a Currency model to its DTO response
 func toCurrencyResponse(c models.Currency) dto.CurrencyResponse {
 	return dto.CurrencyResponse{
 		ID:        c.ID,
