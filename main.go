@@ -3,12 +3,15 @@ package main
 import (
 	"go-login/config"
 	"go-login/controller"
+
 	//"go-login/models"
 	"go-login/repository"
 	"go-login/router"
 	"go-login/service"
 	"log"
 	"os"
+
+	"github.com/robfig/cron/v3"
 )
 
 func main() {
@@ -31,8 +34,11 @@ func main() {
 	exchangeRateService := service.NewExchangeRateService(exchangeRateRepo, currencyRepo)
 	conversionService := service.NewConversionService(exchangeRateRepo, currencyRepo)
 
-	// Sync exchange rates on startup
-	service.NewRateSyncService(exchangeRateRepo).SyncAll()
+	// Sync exchange rates
+	// service.NewRateSyncService(exchangeRateRepo).SyncAll()
+	c := cron.New()
+	c.AddFunc("0 0,12 * * *", service.NewRateSyncService(exchangeRateRepo).SyncAll)
+	c.Start()
 
 	// Controllers
 	authCtrl := controller.NewAuthController(authService)
