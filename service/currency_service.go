@@ -2,8 +2,10 @@ package service
 
 import (
 	"errors"
+	"go-login/dto"
 	"go-login/models"
 	"go-login/repository"
+	"go-login/utils"
 	"strings"
 	"time"
 
@@ -14,7 +16,7 @@ type CurrencyService interface {
 	CreateCurrency(code, name, symbol string) (*models.Currency, error)
 	GetCurrency(id uint) (*models.Currency, error)
 	GetAllCurrencies() ([]models.Currency, error)
-	UpdateCurrency(id uint, name, symbol string, isActive *bool) (*models.Currency, error)
+	UpdateCurrency(id uint, req dto.UpdateCurrencyRequest) (*models.Currency, error)
 	DeleteCurrency(id uint) error
 }
 
@@ -62,27 +64,28 @@ func (s *currencyService) GetAllCurrencies() ([]models.Currency, error) {
 	return s.repo.GetAll()
 }
 
-func (s *currencyService) UpdateCurrency(id uint, name, symbol string, isActive *bool) (*models.Currency, error) {
-	currency, err := s.GetCurrency(id)
-	if err != nil {
+func (s *currencyService) UpdateCurrency(id uint, req dto.UpdateCurrencyRequest) (*models.Currency, error) {
+	if _, err := s.GetCurrency(id); err != nil {
 		return nil, err
 	}
 
-	if name != "" {
-		currency.Name = strings.TrimSpace(name)
+	// extract only non-nil  fields into  map
+	fields := utils.PatchFields(req)
+	if len(fields) == 0 {
+		return nil, errors.New("no update fields provided")
 	}
-	if symbol != "" {
-		currency.Symbol = strings.TrimSpace(symbol)
-	}
-	if isActive != nil {
-		currency.IsActive = *isActive
-	}
-	currency.UpdatedAt = time.Now()
 
-	if err := s.repo.Update(currency); err != nil {
+	for k, v := range fields {
+		if str, ok := v.(string); ok {
+			fields[k] = strings.TrimSpace(str)
+		}
+	}
+	fields["updated_at"] = time.Now()
+
+	if err := s.repo.PartialUpdate(id, fields); err != nil {
 		return nil, err
 	}
-	return currency, nil
+	return s.GetCurrency(id)
 }
 
 func (s *currencyService) DeleteCurrency(id uint) error {

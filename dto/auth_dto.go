@@ -32,9 +32,9 @@ Symbol string `json:"symbol" binding:"required"`
 }
 
 type UpdateCurrencyRequest struct {
-Name     string `json:"name"`
-Symbol   string `json:"symbol"`
-IsActive *bool  `json:"is_active"`
+	Name     *string `json:"name"`
+	Symbol   *string `json:"symbol"`
+	IsActive *bool   `json:"is_active"`
 }
 
 type CurrencyResponse struct {

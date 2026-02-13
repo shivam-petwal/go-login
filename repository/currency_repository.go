@@ -12,6 +12,7 @@ type CurrencyRepository interface {
 	GetByCode(code string) (*models.Currency, error)
 	GetAll() ([]models.Currency, error)
 	Update(currency *models.Currency) error
+	PartialUpdate(id uint, fields map[string]interface{}) error
 }
 
 type currencyRepository struct {
@@ -50,4 +51,8 @@ func (r *currencyRepository) GetAll() ([]models.Currency, error) {
 
 func (r *currencyRepository) Update(currency *models.Currency) error {
 	return r.db.Save(currency).Error
+}
+
+func (r *currencyRepository) PartialUpdate(id uint, fields map[string]interface{}) error {
+	return r.db.Model(&models.Currency{}).Where("id = ? AND deleted_at IS NULL", id).Updates(fields).Error
 }

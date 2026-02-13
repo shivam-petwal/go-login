@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"encoding/json"
 	"go-login/dto"
 	"go-login/models"
 	"go-login/service"
+	"go-login/utils"
 	"net/http"
 	"strconv"
 
@@ -90,13 +92,21 @@ func (ctrl *CurrencyController) UpdateCurrency(ctx *gin.Context) {
 		return
 	}
 
-	var req dto.UpdateCurrencyRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	var raw map[string]interface{}
+	if err := ctx.ShouldBindJSON(&raw); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: err.Error()})
+		return
+	}
+	if err := utils.ValidateNoUnknownFields(raw, dto.UpdateCurrencyRequest{}); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	currency, err := ctrl.service.UpdateCurrency(uint(id), req.Name, req.Symbol, req.IsActive)
+	var req dto.UpdateCurrencyRequest
+	jsonBytes, _ := json.Marshal(raw)
+	json.Unmarshal(jsonBytes, &req)
+
+	currency, err := ctrl.service.UpdateCurrency(uint(id), req)
 	if err != nil {
 		status := http.StatusBadRequest
 		if err.Error() == "currency not found" {

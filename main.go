@@ -37,7 +37,9 @@ func main() {
 	// Sync exchange rates
 	// service.NewRateSyncService(exchangeRateRepo).SyncAll()
 	c := cron.New()
-	c.AddFunc("0 0,12 * * *", service.NewRateSyncService(exchangeRateRepo).SyncAll)
+	if _, err := c.AddFunc("0 0,12 * * *", service.NewRateSyncService(exchangeRateRepo).SyncAll); err != nil {
+		log.Fatalf("failed to schedule rate sync cron: %v", err)
+	}
 	c.Start()
 
 	// Controllers
